@@ -60,19 +60,93 @@ public class Chore implements IChore{
     }
 
     @Override
-    public void editChore() {
+    public void addDeepClean(IChore deepClean) {
+        this.deepClean = deepClean;
+    }
 
+    @Override
+    public void deleteDeepClean() {
+        deepClean = null;
+    }
+
+    @Override
+    public IChore getDeepClean() {
+        return deepClean;
+    }
+
+    @Override
+    public Boolean hasDeepClean() {
+        return deepClean != null;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void editName(String newName) {
+        name = newName;
+    }
+
+    @Override
+    public int getEffort() {
+        return effortVal;
+    }
+
+    @Override
+    public void editEffort(int newEffort) {
+        effortVal = newEffort;
+    }
+
+    @Override
+    public Duration getTime() {
+        return time;
+    }
+
+    @Override
+    public void editTime(Duration newTime) {
+        time = newTime;
+    }
+
+    @Override
+    public Instant getLastComplete() {
+        return lastComplete;
+    }
+
+    @Override
+    public void editLastComplete(Instant newComplete) {
+        lastComplete = newComplete;
+    }
+
+    @Override
+    public void completeNow() {
+        lastComplete = Instant.now();
+    }
+
+    @Override
+    public Period getFrequency() {
+        return frequency;
+    }
+
+    @Override
+    public void editFrequency(Period newFreq) {
+        frequency = newFreq;
     }
 
     @Override
     public Duration timeSinceComplete() {
         Instant currTime = Instant.now();
-        Duration diff = Duration.between(lastComplete, currTime);
-        return diff;
+        return Duration.between(lastComplete, currTime);
     }
 
     @Override
     public String toString() {
-        return name + "\n" + effortVal + "\n" + time + "\n" + frequency + "\n" + lastComplete;
+        StringBuilder str = new StringBuilder();
+        str.append(name).append("\n");
+        str.append(timeSinceComplete().toDays()).append(" - ");
+        str.append(frequency.getDays()).append("\n");
+        str.append(time.toString()).append(" - ").append(effortVal);
+        return str.toString();
     }
 }

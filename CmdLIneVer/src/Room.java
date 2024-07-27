@@ -20,13 +20,43 @@ public class Room implements IRoom {
         return choreList;
     }
 
-    //TODO: Doesn't get chore names for list
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public int getRoomState() {
+        int perfectRoom = getPerfectRoom();
+        for (IChore ichore : choreList) {
+            int roomState = (int) ichore.timeSinceComplete().toDays();
+            if (perfectRoom - roomState > 0) {
+                perfectRoom -= perfectRoom;
+            }
+            else {
+                perfectRoom -= ichore.getFrequency().getDays();
+            }
+        }
+        return perfectRoom;
+    }
+
+    @Override
+    public int getPerfectRoom() {
+        int roomState = 0;
+        for (IChore iChore : choreList) {
+            roomState += iChore.getFrequency().getDays();
+        }
+        return roomState;
+    }
+
     @Override
     public String toString() {
         StringBuilder choreStr = new StringBuilder();
-        for (IChore iChore : choreList) {
-            choreStr.append(iChore).append(", ");
+        int i;
+        for (i = 0; i < choreList.size() - 1; ++i) {
+            choreStr.append(choreList.get(i).getName()).append(", ");
         }
+        choreStr.append(choreList.get(i).getName());
         return choreStr.toString();
     }
 }

@@ -1,29 +1,47 @@
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import static java.time.LocalDateTime.parse;
 
 public class Main {
     public static void main (String[] args) throws ParseException {
-//        String testString = "Vacuumn";
-//        //Scale of 1 - 10
-//        int effort = 10;
-//        //June 10, 2024
-//        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
-//        //Date lastComplete = ft.parse("2024-06-10");
-//        LocalDateTime lastComplete = parse("2024-06-10T19:34:50.63");
-//        //1 hour
-//        Timing time = new Timing(60 * 60);
-//        //Every 2 weeks
-//        int freq = 2 * 7 * 24 * 60 * 60;
-//        Timing frequency = new Timing(freq);
+        Controller c = new Controller();
 
-        IChore test = new Chore ();
-        System.out.println(test.toString());
+        //Bedroom
+        IRoom bedRoom = new Room("Bedroom");
+        //Vacuum
+        Period frequency = Period.ofWeeks(2);
+        Duration time = Duration.ofHours(1);
+        Calendar cal = new GregorianCalendar(2024, Calendar.JULY, 22);
+        Date date = cal.getTime();
+        IChore vacuum = new Chore ("Vacuum Floor", 8, time, date.toInstant(), frequency);
+        //System.out.println(vacuum.toString());
+        System.out.println(c.instantToDate(vacuum.getLastComplete()));
+        System.out.println(c.readableDuration(vacuum.getTime()));
+        System.out.println(c.readablePeriod(vacuum.getFrequency()));
 
-        IRoom room = new Room("Test");
-        room.addChore(test);
+        frequency = Period.ofMonths(4);
+        time = Duration.ofHours(2);
+        cal = new GregorianCalendar(2024, Calendar.FEBRUARY, 3);
+        date = cal.getTime();
+        IChore deepVacuum = new Chore("Vacuum Floor" , 10, time, date.toInstant(), frequency);
+        vacuum.addDeepClean(deepVacuum);
+        //System.out.println(vacuum.getDeepClean().toString());
+
+        //Trash
+        frequency = Period.ofWeeks(1);
+        time = Duration.ofMinutes(15);
+        IChore trash = new Chore("Take out Trash", 2, time, date.toInstant(), frequency);
+        //System.out.println(trash.toString());
+
+        bedRoom.addChore(trash);
+        bedRoom.addChore(vacuum);
+        //System.out.println(bedRoom.toString());
     }
 }
