@@ -1,5 +1,7 @@
+import java.util.List;
 
 public interface IRoom {
     void addChore(IChore newChore);
-    IChore[] getChores();
+    List<IChore> getChores();
+    String toString();
 }
