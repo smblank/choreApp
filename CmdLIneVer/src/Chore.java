@@ -144,9 +144,9 @@ public class Chore implements IChore{
     public String toString() {
         StringBuilder str = new StringBuilder();
         str.append(name).append("\n");
-        str.append(timeSinceComplete().toDays()).append(" - ");
-        str.append(frequency.getDays()).append("\n");
-        str.append(time.toString()).append(" - ").append(effortVal);
+        str.append("Time Since Complete: ").append(Controller.readableDuration(timeSinceComplete())).append(" - ");
+        str.append("Frequency: ").append(Controller.readablePeriod(frequency)).append("\n");
+        str.append(Controller.readableDuration(time)).append(" - ").append("Effort: ").append(effortVal);
         return str.toString();
     }
 }

@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Room implements IRoom {
     String name;
@@ -18,6 +19,17 @@ public class Room implements IRoom {
     @Override
     public List<IChore> getChores() {
         return choreList;
+    }
+
+    @Override
+    public IChore getChore(String choreName) {
+        IChore targetChore = null;
+        for (IChore chore: choreList) {
+            if (Objects.equals(chore.getName(), choreName)) {
+                targetChore = chore;
+            }
+        }
+        return targetChore;
     }
 
     @Override

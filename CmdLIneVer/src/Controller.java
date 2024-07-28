@@ -1,15 +1,73 @@
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.*;
+import org.json.*;
 
 public class Controller {
     List<IRoom> rooms;
 
     public Controller() {
         rooms = new ArrayList<IRoom>();
+    }
+
+    //NOTE: This adds extra fields to the json & I'm not sure why
+    public void exportData(String filePath) throws IOException {
+        JSONObject json = new JSONObject();
+        JSONArray roomsArr = new JSONArray();
+
+        for (IRoom room: rooms) {
+            JSONArray chores = new JSONArray();
+            for (IChore chore: room.getChores()) {
+                JSONObject obj = new JSONObject();
+                obj.put("name", chore.getName());
+                obj.put("effort", chore.getEffort());
+                obj.put("time", chore.getTime());
+                obj.put("lastComplete", chore.getLastComplete());
+                obj.put("frequency", chore.getFrequency());
+                chores.put(obj);
+            }
+            JSONObject roomObj = new JSONObject();
+            roomObj.put("name", room.getName());
+            roomObj.put("chores", chores);
+            roomsArr.put(room);
+            json.put("rooms", rooms);
+        }
+
+        try (FileWriter file = new FileWriter(filePath)) {
+            file.write(json.toString());
+        }
+    }
+
+    public void importData(String filePath) throws IOException, ParseException {
+        String jsonStr = new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
+        JSONObject obj = new JSONObject(jsonStr);
+
+        JSONArray arr = obj.getJSONArray("rooms");
+        for (int i = 0; i < arr.length(); ++i) {
+            String name = arr.getJSONObject(i).getString("name");
+            IRoom room = new Room(name);
+
+            JSONArray chores = arr.getJSONObject(i).getJSONArray("chores");
+            for (int j = 0; j < chores.length(); ++j) {
+                String chrName = chores.getJSONObject(j).getString("name");
+                int effort = chores.getJSONObject(j).getInt("effort");
+                Duration time = Duration.parse(chores.getJSONObject(j).getString("time"));
+                Instant lastComp = Instant.parse(chores.getJSONObject(j).getString("lastComplete"));
+                Period freq = Period.parse(chores.getJSONObject(j).getString("frequency"));
+
+                IChore chore = new Chore(chrName, effort, time, lastComp, freq);
+                room.addChore(chore);
+            }
+            rooms.add(room);
+        }
     }
 
     public void addRoom(IRoom newRoom) {
@@ -39,18 +97,18 @@ public class Controller {
     }
 
     public Instant dateToInstant(String date) throws ParseException {
-        SimpleDateFormat df = new SimpleDateFormat();
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
         Date d = df.parse(date);
 
         return d.toInstant();
     }
 
-    public String instantToDate(Instant inst) {
+    static String instantToDate(Instant inst) {
         ZonedDateTime date = inst.atZone(ZoneId.systemDefault());
         return date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
     }
 
-    public String readableDuration(Duration dur) {
+    static String readableDuration(Duration dur) {
         StringBuilder str = new StringBuilder();
         if (dur.toHours() > 0) {
             str.append(dur.toHours()).append(" hour");
@@ -74,7 +132,7 @@ public class Controller {
         return str.toString();
     }
 
-    public String readablePeriod(Period per) {
+    static String readablePeriod(Period per) {
         StringBuilder str = new StringBuilder();
         if (per.getYears() > 0) {
             str.append(per.getYears()).append(" year");

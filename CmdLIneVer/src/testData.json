@@ -1,0 +1,24 @@
+{
+  "rooms": [
+    {
+      "name": "Bedroom",
+      "chores": [
+        {
+          "name": "Vacuum the floor",
+          "effort": 8,
+          "time": "1 Hour",
+          "lastComplete": "7/22/2024",
+          "frequency": "2 Weeks"
+        },
+        {
+          "name": "Take out the trash",
+          "effort": 2,
+          "time": "15 Minutes",
+          "lastComplete": "7/22/2024",
+          "frequency": "1 Week"
+        }
+      ]
+    }
+  ]
+
+}
