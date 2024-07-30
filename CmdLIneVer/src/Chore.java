@@ -159,6 +159,10 @@ public class Chore implements IChore{
         else if (effortVal > 0) {
             str.append("Effort: ").append(effortVal);
         }
+
+        if (hasDeepClean()) {
+            str.append("\n").append(deepClean.toString());
+        }
         return str.toString();
     }
 }

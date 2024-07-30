@@ -10,8 +10,11 @@ public interface IRoom {
     IChore getChore(String choreName);
 
     String getName();
+
+    void editName(String newName);
+
     /*Each chore adds to total number of days (frequency of chore) and number
-    on the slider is total number of days - days since completed > 0*/
+        on the slider is total number of days - days since completed > 0*/
     int getRoomState();
     int getPerfectRoom();
     String toString();

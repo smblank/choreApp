@@ -36,6 +36,19 @@ public class Controller {
                 }
                 obj.put("lastComplete", chore.getLastComplete());
                 obj.put("frequency", chore.getFrequency());
+                if (chore.hasDeepClean()) {
+                    JSONObject deepClean = new JSONObject();
+                    deepClean.put("name", chore.getDeepClean().getName());
+                    if (chore.getEffort() > 0) {
+                        deepClean.put("effort", chore.getDeepClean().getEffort());
+                    }
+                    if (chore.getTime() != null) {
+                        deepClean.put("time", chore.getDeepClean().getTime());
+                    }
+                    deepClean.put("lastComplete", chore.getDeepClean().getLastComplete());
+                    deepClean.put("frequency", chore.getDeepClean().getFrequency());
+                    obj.put("deep clean", deepClean);
+                }
                 chores.put(obj);
             }
             JSONObject roomObj = new JSONObject();
@@ -74,6 +87,23 @@ public class Controller {
                 Period freq = Period.parse(chores.getJSONObject(j).getString("frequency"));
 
                 IChore chore = new Chore(chrName, effort, time, lastComp, freq);
+
+                if (chores.getJSONObject(j).has("deepClean")) {
+                    JSONObject deep = chores.getJSONObject(j).getJSONObject("deepClean");
+                    String deepName = deep.getString("name");
+                    int deepEffort = -1;
+                    if (deep.has("effort")) {
+                        deepEffort = deep.getInt("effort");
+                    }
+                    Duration deepTime = null;
+                    if (deep.has("time")) {
+                        deepTime = Duration.parse(deep.getString("time"));
+                    }
+                    Instant deepLastComp = Instant.parse(deep.getString("lastComplete"));
+                    Period deepFreq = Period.parse(deep.getString("frequency"));
+                    IChore deepChore = new Chore(deepName, deepEffort, deepTime, deepLastComp, deepFreq);
+                    chore.addDeepClean(deepChore);
+                }
                 room.addChore(chore);
             }
             rooms.add(room);

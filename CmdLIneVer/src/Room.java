@@ -43,6 +43,11 @@ public class Room implements IRoom {
     }
 
     @Override
+    public void editName(String newName) {
+        name = newName;
+    }
+
+    @Override
     public int getRoomState() {
         int perfectRoom = getPerfectRoom();
         for (IChore ichore : choreList) {
