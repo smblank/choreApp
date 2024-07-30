@@ -2,6 +2,9 @@ import java.util.List;
 
 public interface IRoom {
     void addChore(IChore newChore);
+
+    void removeChore(IChore chore);
+
     List<IChore> getChores();
 
     IChore getChore(String choreName);

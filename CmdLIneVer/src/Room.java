@@ -17,6 +17,11 @@ public class Room implements IRoom {
     }
 
     @Override
+    public void removeChore(IChore chore) {
+        choreList.remove(chore);
+    }
+
+    @Override
     public List<IChore> getChores() {
         return choreList;
     }
@@ -65,10 +70,13 @@ public class Room implements IRoom {
     public String toString() {
         StringBuilder choreStr = new StringBuilder();
         int i;
-        for (i = 0; i < choreList.size() - 1; ++i) {
-            choreStr.append(choreList.get(i).getName()).append(", ");
+        if (choreList.size() > 0) {
+            for (i = 0; i < choreList.size() - 1; ++i) {
+                choreStr.append(choreList.get(i).getName()).append(", ");
+            }
+            choreStr.append(choreList.get(i).getName());
+            return choreStr.toString();
         }
-        choreStr.append(choreList.get(i).getName());
-        return choreStr.toString();
+        return "";
     }
 }

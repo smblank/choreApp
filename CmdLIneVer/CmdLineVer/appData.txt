@@ -1,1 +1,0 @@
-{"rooms":[{"roomState":-14,"name":"Bedroom","chores":[{"lastComplete":"2024-07-22T04:00:00Z","name":"Take out Trash","effort":2,"time":"PT15M","frequency":"P7D"},{"lastComplete":"2024-07-22T04:00:00Z","name":"Vacuum Floor","effort":8,"time":"PT1H","frequency":"P14D"}],"perfectRoom":21}]}

@@ -28,8 +28,12 @@ public class Controller {
             for (IChore chore: room.getChores()) {
                 JSONObject obj = new JSONObject();
                 obj.put("name", chore.getName());
-                obj.put("effort", chore.getEffort());
-                obj.put("time", chore.getTime());
+                if (chore.getEffort() > 0) {
+                    obj.put("effort", chore.getEffort());
+                }
+                if (chore.getTime() != null) {
+                    obj.put("time", chore.getTime());
+                }
                 obj.put("lastComplete", chore.getLastComplete());
                 obj.put("frequency", chore.getFrequency());
                 chores.put(obj);
@@ -58,8 +62,14 @@ public class Controller {
             JSONArray chores = arr.getJSONObject(i).getJSONArray("chores");
             for (int j = 0; j < chores.length(); ++j) {
                 String chrName = chores.getJSONObject(j).getString("name");
-                int effort = chores.getJSONObject(j).getInt("effort");
-                Duration time = Duration.parse(chores.getJSONObject(j).getString("time"));
+                int effort = -1;
+                if (chores.getJSONObject(j).has("effort")) {
+                    effort = chores.getJSONObject(j).getInt("effort");
+                }
+                Duration time = null;
+                if (chores.getJSONObject(j).has("time")) {
+                    time = Duration.parse(chores.getJSONObject(j).getString("time"));
+                }
                 Instant lastComp = Instant.parse(chores.getJSONObject(j).getString("lastComplete"));
                 Period freq = Period.parse(chores.getJSONObject(j).getString("frequency"));
 

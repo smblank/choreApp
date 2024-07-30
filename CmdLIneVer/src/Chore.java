@@ -41,6 +41,7 @@ public class Chore implements IChore{
 
     public Chore(String name, Duration time, Instant lastComplete, Period frequency) {
         this.name = name;
+        this.effortVal = -1;
         this.time = time;
         this.lastComplete = lastComplete;
         this.frequency = frequency;
@@ -49,12 +50,15 @@ public class Chore implements IChore{
     public Chore(String name, int effortVal, Instant lastComplete, Period frequency) {
         this.name = name;
         this.effortVal = effortVal;
+        this.time = null;
         this.lastComplete = lastComplete;
         this.frequency = frequency;
     }
 
     public Chore(String name, Instant lastComplete, Period frequency) {
         this.name = name;
+        this.effortVal = -1;
+        this.time = null;
         this.lastComplete = lastComplete;
         this.frequency = frequency;
     }
@@ -146,7 +150,15 @@ public class Chore implements IChore{
         str.append(name).append("\n");
         str.append("Time Since Complete: ").append(Controller.readableDuration(timeSinceComplete())).append(" - ");
         str.append("Frequency: ").append(Controller.readablePeriod(frequency)).append("\n");
-        str.append(Controller.readableDuration(time)).append(" - ").append("Effort: ").append(effortVal);
+        if (time != null) {
+            str.append(Controller.readableDuration(time));
+        }
+        if (time != null && effortVal > 0) {
+            str.append(" - ").append("Effort: ").append(effortVal);
+        }
+        else if (effortVal > 0) {
+            str.append("Effort: ").append(effortVal);
+        }
         return str.toString();
     }
 }
