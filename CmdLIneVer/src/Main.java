@@ -5,6 +5,12 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.*;
 
+/*
+TODO: Implement 1 time chore
+Clean Shower wand, Set on 10/29/2023
+Fix doorknob, Set on 10/29/2024
+Clean Towel Rack, Set on 1/20/2024
+ */
 public class Main {
     static Scanner myObj = new Scanner(System.in);
     public static void main (String[] args) throws ParseException, IOException {
