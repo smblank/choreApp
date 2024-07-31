@@ -1,6 +1,7 @@
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -8,14 +9,16 @@ import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.*;
-import org.json.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 public class Controller {
     List<IRoom> rooms;
 
     public Controller() {
-        rooms = new ArrayList<IRoom>();
+        rooms = new ArrayList<>();
     }
 
     //NOTE: This adds extra fields to the json & I'm not sure why
@@ -63,8 +66,8 @@ public class Controller {
         }
     }
 
-    public void importData(String filePath) throws IOException, ParseException {
-        String jsonStr = new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
+    public void importData(String filePath) throws IOException {
+        String jsonStr = Files.readString(Paths.get(filePath));
         JSONObject obj = new JSONObject(jsonStr);
 
         JSONArray arr = obj.getJSONArray("rooms");
@@ -119,7 +122,7 @@ public class Controller {
     }
 
     public void deleteRoom(String roomName) {
-        rooms.removeIf(room -> room.getName() == roomName);
+        rooms.removeIf(room -> Objects.equals(room.getName(), roomName));
     }
 
     public IRoom getRoom(String roomName) {

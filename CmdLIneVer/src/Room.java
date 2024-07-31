@@ -8,7 +8,7 @@ public class Room implements IRoom {
 
     public Room(String name) {
         this.name = name;
-        choreList = new ArrayList<IChore>();
+        choreList = new ArrayList<>();
     }
 
     @Override
