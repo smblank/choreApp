@@ -5,12 +5,6 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.*;
 
-/*
-TODO: Implement 1 time chore
-Clean Shower wand, Set on 10/29/2023
-Fix doorknob, Set on 10/29/2024
-Clean Towel Rack, Set on 1/20/2024
- */
 public class Main {
     static Scanner myObj = new Scanner(System.in);
     public static void main (String[] args) throws ParseException, IOException {
@@ -38,6 +32,8 @@ public class Main {
                     System.out.println("D - Delete select room");
                     System.out.println("E - Edit select room");
                     System.out.println("M - Move into select room");
+                    System.out.println("L - Print all chores in alphabetical order");
+                    System.out.println("T - Print all chores in descending order of time since completed");
                     System.out.println("X - Exit");
                     String userIn = myObj.nextLine();
 
@@ -49,6 +45,8 @@ public class Main {
                             room = moveRoom(c);
                             menuType = 'R';
                         }
+                        case "L" -> printAlphabetical(c);
+                        case "T" -> printAllChores(c);
                         case "X" -> inLoop = false;
                         default -> System.out.println("Not a valid input, please choose again.");
                     }
@@ -139,7 +137,7 @@ public class Main {
         List<IRoom> rooms = c.getRooms();
         if (rooms.size() > 0) {
             for (IRoom room: rooms) {
-                str.append(room.getName());
+                str.append(room.getName()).append(": ").append(room.getRoomState()).append("%");
                 str.append(", ");
             }
             System.out.println(str);
@@ -147,13 +145,37 @@ public class Main {
     }
 
     static void printChores(IRoom room) {
-        System.out.println(room);
+        StringBuilder str = new StringBuilder();
+        List<IChore> chores = room.getChores();
+        if (chores.size() > 0) {
+            for (IChore chore: chores) {
+                if (chore.isOneTime()) {
+                    str.append(chore.getName()).append(", ");
+                }
+                else {
+                    str.append(chore.getName()).append(": ").append(chore.getPercentage()).append("%, ");
+                }
+            }
+            System.out.println(str);
+        }
     }
 
     static void printChore(IChore chore) {
         System.out.println(chore.toString());
     }
 
+    static void printAlphabetical(Controller c) {
+        List<IChore> orderedChores = new ArrayList<>();
+        List<IRoom> rooms = c.getRooms();
+        for (IRoom room: rooms) {
+            List<IChore> chores = room.getChores();
+
+        }
+    }
+
+    static void printAllChores(Controller c) {
+
+    }
 
     //Room functions
     static void addRoom(Controller c) {
@@ -207,24 +229,14 @@ public class Main {
                 int numTime = myObj.nextInt();
                 String strTime = myObj.nextLine();
                 switch (strTime) {
-                    case " day":
-                    case " days":
-                        time = Duration.ofDays(numTime);
-                        break;
-                    case " hour":
-                    case " hours":
-                        time = Duration.ofHours(numTime);
-                        break;
-                    case " minute":
-                    case " minutes":
-                        time = Duration.ofMinutes(numTime);
-                        break;
-                    case " second":
-                    case " seconds":
-                        time = Duration.ofSeconds(numTime);
-                    default:
+                    case " day", " days" -> time = Duration.ofDays(numTime);
+                    case " hour", " hours" -> time = Duration.ofHours(numTime);
+                    case " minute", " minutes" -> time = Duration.ofMinutes(numTime);
+                    case " second", " seconds" -> time = Duration.ofSeconds(numTime);
+                    default -> {
                         System.out.println("Not a valid time unit");
                         return;
+                    }
                 }
                 chore.editTime(time);
                 break;
@@ -236,6 +248,14 @@ public class Main {
                 break;
             case "frequency":
             case "Frequency":
+                if (!chore.isOneTime()) {
+                    System.out.println("Would you like to make this chore a one-time frequency?");
+                    userIn = myObj.nextLine();
+                    if (Objects.equals(userIn, "Y") || Objects.equals(userIn, "y")) {
+                        chore.editFrequency(null);
+                        break;
+                    }
+                }
                 System.out.println("Enter the new frequency (# days/weeks):");
                 int numFreq = myObj.nextInt();
                 String strFreq = myObj.nextLine();
@@ -297,7 +317,12 @@ public class Main {
         String date = myObj.nextLine();
         Instant lastComp = c.dateToInstant(date);
 
-        Period freq = createPeriod();
+        Period freq = null;
+        System.out.println("Is this a one-time chore?");
+        userIn = myObj.nextLine();
+        if (Objects.equals(userIn, "n") || Objects.equals(userIn, "N")) {
+            freq = createPeriod();
+        }
 
         return new Chore(choreName, effort, time, lastComp, freq);
     }

@@ -16,6 +16,11 @@ public interface IChore {
     Instant getLastComplete();
     void editLastComplete(Instant newComplete);
     void completeNow();
+
+    int getPercentage();
+
+    boolean isOneTime();
+
     Period getFrequency();
     void editFrequency(Period newFreq);
     Duration timeSinceComplete();

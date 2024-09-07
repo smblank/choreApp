@@ -38,7 +38,9 @@ public class Controller {
                     obj.put("time", chore.getTime());
                 }
                 obj.put("lastComplete", chore.getLastComplete());
-                obj.put("frequency", chore.getFrequency());
+                if (!chore.isOneTime()) {
+                    obj.put("frequency", chore.getFrequency());
+                }
                 if (chore.hasDeepClean()) {
                     JSONObject deepClean = new JSONObject();
                     deepClean.put("name", chore.getDeepClean().getName());
@@ -49,7 +51,9 @@ public class Controller {
                         deepClean.put("time", chore.getDeepClean().getTime());
                     }
                     deepClean.put("lastComplete", chore.getDeepClean().getLastComplete());
-                    deepClean.put("frequency", chore.getDeepClean().getFrequency());
+                    if (!chore.getDeepClean().isOneTime()) {
+                        deepClean.put("frequency", chore.getDeepClean().getFrequency());
+                    }
                     obj.put("deep clean", deepClean);
                 }
                 chores.put(obj);
@@ -87,7 +91,10 @@ public class Controller {
                     time = Duration.parse(chores.getJSONObject(j).getString("time"));
                 }
                 Instant lastComp = Instant.parse(chores.getJSONObject(j).getString("lastComplete"));
-                Period freq = Period.parse(chores.getJSONObject(j).getString("frequency"));
+                Period freq = null;
+                if (chores.getJSONObject(j).has("frequency")) {
+                    freq = Period.parse(chores.getJSONObject(j).getString("frequency"));
+                }
 
                 IChore chore = new Chore(chrName, effort, time, lastComp, freq);
 
@@ -103,7 +110,10 @@ public class Controller {
                         deepTime = Duration.parse(deep.getString("time"));
                     }
                     Instant deepLastComp = Instant.parse(deep.getString("lastComplete"));
-                    Period deepFreq = Period.parse(deep.getString("frequency"));
+                    Period deepFreq = null;
+                    if (deep.has("frequency")) {
+                        Period.parse(deep.getString("frequency"));
+                    }
                     IChore deepChore = new Chore(deepName, deepEffort, deepTime, deepLastComp, deepFreq);
                     chore.addDeepClean(deepChore);
                 }

@@ -1,3 +1,4 @@
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -49,24 +50,25 @@ public class Room implements IRoom {
 
     @Override
     public int getRoomState() {
-        int perfectRoom = getPerfectRoom();
-        for (IChore ichore : choreList) {
-            int roomState = (int) ichore.timeSinceComplete().toDays();
-            if (perfectRoom - roomState > 0) {
-                perfectRoom -= perfectRoom;
-            }
-            else {
-                perfectRoom -= ichore.getFrequency().getDays();
-            }
+        double chorePercentage = 0;
+        for (IChore chore: choreList) {
+            chorePercentage += chore.getPercentage();
         }
-        return perfectRoom;
+        double totPercentage = 100 * choreList.size();
+
+        return (int) ((totPercentage - chorePercentage) / totPercentage);
     }
 
     @Override
     public int getPerfectRoom() {
         int roomState = 0;
         for (IChore iChore : choreList) {
-            roomState += iChore.getFrequency().getDays();
+            if (!iChore.isOneTime()) {
+                int freq = iChore.getFrequency().getYears() * 365;
+                freq += iChore.getFrequency().getMonths() * 30;
+                freq += iChore.getFrequency().getDays();
+                roomState += freq;
+            }
         }
         return roomState;
     }

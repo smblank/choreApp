@@ -124,6 +124,33 @@ public class Chore implements IChore{
     }
 
     @Override
+    public int getPercentage() {
+        if (frequency == null ) {
+            return 0;
+        }
+
+        else {
+            double freqDays = (frequency.getYears() * 365.0);
+            freqDays += frequency.getMonths() * 30.0;
+            freqDays += frequency.getDays();
+
+            double days = timeSinceComplete().toDays();
+
+            if (days > freqDays) {
+                return 0;
+            }
+            else {
+                return (int) (100 - ((days/freqDays) * 100));
+            }
+        }
+    }
+
+    @Override
+    public boolean isOneTime() {
+        return frequency == null;
+    }
+
+    @Override
     public Period getFrequency() {
         return frequency;
     }
@@ -142,9 +169,16 @@ public class Chore implements IChore{
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        str.append(name).append("\n");
-        str.append("Time Since Complete: ").append(Controller.readableDuration(timeSinceComplete())).append(" - ");
-        str.append("Frequency: ").append(Controller.readablePeriod(frequency)).append("\n");
+        str.append(name);
+        if (frequency != null) {
+            str.append(": ").append(getPercentage()).append("%");
+        }
+        str.append("\n");
+        str.append("Time Since Complete: ").append(Controller.readableDuration(timeSinceComplete()));
+        if (frequency != null) {
+            str.append(" - ").append("Frequency: ").append(Controller.readablePeriod(frequency));
+        }
+        str.append("\n");
         if (time != null) {
             str.append(Controller.readableDuration(time));
         }
