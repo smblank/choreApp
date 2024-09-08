@@ -6,6 +6,7 @@ import java.util.GregorianCalendar;
 
 public class Chore implements IChore{
     String name;
+    IRoom room;
     int effortVal;
     Duration time;
     Instant lastComplete;
@@ -26,12 +27,13 @@ public class Chore implements IChore{
         frequency = Period.ofWeeks(2);
     }
 
-    public Chore(String name, int effortVal, Duration time, Instant lastComplete, Period frequency) {
+    public Chore(String name, int effortVal, Duration time, Instant lastComplete, Period frequency, IRoom room) {
         this.name = name;
         this.effortVal = effortVal;
         this.time = time;
         this.lastComplete = lastComplete;
         this.frequency = frequency;
+        this.room = room;
     }
 
     public Chore(String name, Duration time, Instant lastComplete, Period frequency) {
@@ -86,6 +88,16 @@ public class Chore implements IChore{
     @Override
     public void editName(String newName) {
         name = newName;
+    }
+
+    @Override
+    public IRoom getRoom() {
+        return room;
+    }
+
+    @Override
+    public void editRoom(IRoom newRoom) {
+        room = newRoom;
     }
 
     @Override

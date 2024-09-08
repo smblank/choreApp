@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.*;
 
+
 public class Main {
     static Scanner myObj = new Scanner(System.in);
     public static void main (String[] args) throws ParseException, IOException {
@@ -34,6 +35,11 @@ public class Main {
                     System.out.println("M - Move into select room");
                     System.out.println("L - Print all chores in alphabetical order");
                     System.out.println("T - Print all chores in descending order of time since completed");
+                    System.out.println("F - Print all chores in ascending order of frequency");
+                    System.out.println("R - Print all chores in ascending order of effort");
+                    System.out.println("C - Print all chores in ascending order of time to complete");
+                    System.out.println("P - Print all chores in descending order of how recently completed");
+                    System.out.println("G - Generate recommended list of chores");
                     System.out.println("X - Exit");
                     String userIn = myObj.nextLine();
 
@@ -46,7 +52,12 @@ public class Main {
                             menuType = 'R';
                         }
                         case "L" -> printAlphabetical(c);
-                        case "T" -> printAllChores(c);
+                        case "T" -> printByTimeComplete(c);
+                        case "F" -> printByFrequency(c);
+                        case "R" -> printByEffort(c);
+                        case "C" -> printByTime(c);
+                        case "P" -> printByPercentage(c);
+                        case "G" -> generateRecommended(c);
                         case "X" -> inLoop = false;
                         default -> System.out.println("Not a valid input, please choose again.");
                     }
@@ -87,7 +98,7 @@ public class Main {
                     String userIn = myObj.nextLine();
 
                     switch (userIn) {
-                        case "A" -> addDeepClean(c, chore);
+                        case "A" -> addDeepClean(c, chore, room);
                         case "D" -> chore.deleteDeepClean();
                         case "E" -> editChore(c, chore);
                         case "C" -> chore.completeNow();
@@ -164,17 +175,118 @@ public class Main {
         System.out.println(chore.toString());
     }
 
-    static void printAlphabetical(Controller c) {
+    static List<IChore> addAllChores(Controller c) {
         List<IChore> orderedChores = new ArrayList<>();
         List<IRoom> rooms = c.getRooms();
         for (IRoom room: rooms) {
             List<IChore> chores = room.getChores();
+            orderedChores.addAll(chores);
+        }
 
+        return orderedChores;
+    }
+
+    static void printAlphabetical(Controller c) {
+        List<IChore> orderedChores = addAllChores(c);
+        orderedChores.sort(new AlphabeticalComparator());
+
+        for (IChore chore: orderedChores) {
+            System.out.println(chore.getRoom().getName() + " - " + chore.getName() + ": " + chore.getPercentage() + "%");
         }
     }
 
-    static void printAllChores(Controller c) {
+    static void printByTimeComplete(Controller c) {
+        List<IChore> orderedChores = addAllChores(c);
+        orderedChores.sort(Collections.reverseOrder(new TimeCompleteComparator()));
 
+        for (IChore chore: orderedChores) {
+            System.out.println(chore.getRoom().getName() + " - " + chore.getName() + ": " + chore.timeSinceComplete());
+        }
+    }
+
+    static void printByFrequency(Controller c) {
+        List<IChore> orderedChores = addAllChores(c);
+        orderedChores.sort(new FrequencyComparator());
+
+        for (IChore chore: orderedChores) {
+            System.out.println(chore.getRoom().getName() + " - " + chore.getName() + ": " + chore.getFrequency());
+        }
+    }
+
+    static void printByEffort(Controller c) {
+        List<IChore> orderedChores = addAllChores(c);
+        orderedChores.sort(new EffortComparator());
+
+        for (IChore chore: orderedChores) {
+            System.out.println(chore.getRoom().getName() + " - " + chore.getName() + ": " + chore.getEffort());
+        }
+    }
+
+    static void printByTime(Controller c) {
+        List<IChore> orderedChores = addAllChores(c);
+        orderedChores.sort(new TimeComparator());
+
+        for (IChore chore: orderedChores) {
+            System.out.println(chore.getRoom().getName() + " - " + chore.getName() + ": " + chore.getTime());
+        }
+    }
+
+    static void printByPercentage(Controller c) {
+        List<IChore> orderedChores = addAllChores(c);
+        orderedChores.sort(new PercentageComparator());
+
+        for (IChore chore: orderedChores) {
+            System.out.println(chore.getRoom().getName() + " - " + chore.getName() + ": " + chore.getPercentage() + "%");
+        }
+    }
+
+    static void generateRecommended(Controller c) {
+        String totTimeUnits = "", factor = "", roomName = "";
+        int totTime = 0, numChores = 0, effort = 0;
+        System.out.println("Would you like to enter a total time for chores?");
+        String userIn = myObj.nextLine();
+        if (userIn.equalsIgnoreCase("y")) {
+            System.out.println("Enter the time you have for chores:");
+            totTime = myObj.nextInt();
+            totTimeUnits = myObj.nextLine();
+
+            if (totTimeUnits.equalsIgnoreCase("hours") || totTimeUnits.equalsIgnoreCase("hour")); {
+                totTime = totTime * 60;
+            }
+        }
+        else {
+            System.out.println("Would you like to enter a maximum number of chores");
+            userIn = myObj.nextLine();
+            if (userIn.equalsIgnoreCase("y")) {
+                System.out.println("Enter the maximum number of chores you'd like to do:");
+                numChores = myObj.nextInt();
+                myObj.nextLine();
+            }
+        }
+        System.out.println("Would you like to enter a maximum effort value?");
+        userIn = myObj.nextLine();
+        if (userIn.equalsIgnoreCase("y")) {
+            System.out.println("Enter the maximum effort value you're willing to do (1-10)");
+            effort = myObj.nextInt();
+            myObj.nextLine();
+        }
+        System.out.println("Is there a factor you'd like to prioritize in choosing chores?");
+        userIn = myObj.nextLine();
+        if (userIn.equalsIgnoreCase("y")) {
+            System.out.println("Enter a factor you'd like to prioritize (Time, Effort, Room, Time since last completed");
+            factor = myObj.nextLine();
+
+            if (factor.equalsIgnoreCase("room")) {
+                System.out.println("Which room do you want to prioritize?");
+                roomName = myObj.nextLine();
+            }
+        }
+        List<IChore> recChores = c.getChoreList(totTime, factor, roomName, numChores, effort);
+
+        for (IChore chore: recChores) {
+            System.out.println(chore.getRoom().getName() + " - " + chore.getName());
+            System.out.println(chore.getPercentage() + "% " + chore.getTime() + " " + chore.getEffort());
+        }
     }
 
     //Room functions
@@ -201,12 +313,12 @@ public class Main {
 
     //Chore functions
     static void addChore(Controller c, IRoom room) throws ParseException {
-        IChore newChore = createChore(c);
+        IChore newChore = createChore(c, room);
         room.addChore(newChore);
     }
 
     static void editChore(Controller c, IChore chore) throws ParseException {
-        System.out.println("What aspect of the chore would you like to edit? (Name, Effort, Time, Last Complete Date, Frequency");
+        System.out.println("What aspect of the chore would you like to edit? (Name, Effort, Time, Last Complete Date, Frequency, Room");
         String userIn = myObj.nextLine();
 
         switch (userIn) {
@@ -271,6 +383,19 @@ public class Main {
                     }
                 }
                 chore.editFrequency(freq);
+                break;
+            case "room":
+            case "Room":
+                System.out.println("Which room would you like to move the chore to?");
+                userIn = myObj.nextLine();
+                IRoom newRoom = c.getRoom(userIn);
+                while (newRoom == null) {
+                    System.out.println("That room doesn't exist. Please enter the name of existing room.");
+                    userIn = myObj.nextLine();
+                    newRoom = c.getRoom(userIn);
+                }
+                chore.editRoom(newRoom);
+                break;
             default:
                 System.out.println("Not a valid option");
         }
@@ -281,16 +406,16 @@ public class Main {
         room.removeChore(chore);
     }
 
-    static void addDeepClean(Controller c, IChore chore) throws ParseException {
+    static void addDeepClean(Controller c, IChore chore, IRoom room) throws ParseException {
         System.out.println("Creating chore, name will be overridden");
-        IChore newChore = createChore(c);
+        IChore newChore = createChore(c, room);
         String newChoreName = "Deep Clean " + chore.getName();
         newChore.editName(newChoreName);
         chore.addDeepClean(newChore);
     }
 
     //Helpers
-    static IChore createChore(Controller c) throws ParseException {
+    static IChore createChore(Controller c, IRoom room) throws ParseException {
         System.out.println("Enter name of new chore:");
         String choreName = myObj.nextLine();
 
@@ -324,7 +449,7 @@ public class Main {
             freq = createPeriod();
         }
 
-        return new Chore(choreName, effort, time, lastComp, freq);
+        return new Chore(choreName, effort, time, lastComp, freq, room);
     }
 
     static Duration createDuration() {

@@ -61,8 +61,8 @@ public class Controller {
             JSONObject roomObj = new JSONObject();
             roomObj.put("name", room.getName());
             roomObj.put("chores", chores);
-            roomsArr.put(room);
-            json.put("rooms", rooms);
+            roomsArr.put(roomObj);
+            json.put("rooms", roomsArr);
         }
 
         try (FileWriter file = new FileWriter(filePath)) {
@@ -96,7 +96,7 @@ public class Controller {
                     freq = Period.parse(chores.getJSONObject(j).getString("frequency"));
                 }
 
-                IChore chore = new Chore(chrName, effort, time, lastComp, freq);
+                IChore chore = new Chore(chrName, effort, time, lastComp, freq, room);
 
                 if (chores.getJSONObject(j).has("deepClean")) {
                     JSONObject deep = chores.getJSONObject(j).getJSONObject("deepClean");
@@ -114,12 +114,92 @@ public class Controller {
                     if (deep.has("frequency")) {
                         Period.parse(deep.getString("frequency"));
                     }
-                    IChore deepChore = new Chore(deepName, deepEffort, deepTime, deepLastComp, deepFreq);
+                    IChore deepChore = new Chore(deepName, deepEffort, deepTime, deepLastComp, deepFreq, room);
                     chore.addDeepClean(deepChore);
                 }
                 room.addChore(chore);
             }
             rooms.add(room);
+        }
+    }
+
+    public List<IChore> getChoreList (int time, String factor, String roomName, int numChores, int effort) {
+        List<IChore> recChores = new ArrayList<>();
+        List<IChore> allChores = new ArrayList<>();
+
+        for (IRoom room: rooms) {
+            allChores.addAll(room.getChores());
+        }
+
+
+
+        for (IChore chore: allChores) {
+            if (effort != 0) {
+                if (chore.getEffort() <= effort) {
+                    recChores.add(chore);
+                }
+            }
+        }
+
+        if (recChores.size() > 0) {
+            allChores = new ArrayList<>(recChores);
+            recChores = new ArrayList<>();
+        }
+
+
+        for (IChore chore: allChores) {
+            if (chore.getTime() != null && chore.getEffort() != -1) {
+                recChores.add(chore);
+            }
+        }
+
+        if (time != 0) {
+            if (recChores.size() > 0) {
+                allChores = new ArrayList<>(recChores);
+                recChores = new ArrayList<>();
+            }
+
+            allChores.sort(new TimeComparator());
+            int totTime = 0;
+            for (IChore chore: allChores) {
+                if (totTime + chore.getTime().toMinutes() <= time) {
+                    totTime += chore.getTime().toMinutes();
+                    recChores.add(chore);
+                }
+                else {
+                    break;
+                }
+            }
+        }
+
+        switch (factor.toLowerCase()) {
+            case "time":
+                //Sort by time, then percentage
+                recChores.sort(new TimeComparator().thenComparing(new PercentageComparator()));
+                break;
+            case "effort":
+                //Sort by effort, percentage, time
+                recChores.sort(new EffortComparator().thenComparing(new PercentageComparator().thenComparing(new TimeComparator())));
+                break;
+            case "room":
+                //Prioritize one room first
+                recChores.sort(new RoomComparator(roomName).thenComparing(new PercentageComparator().thenComparing(new TimeComparator())));
+                break;
+            default:
+                //Sort by percentage, time to complete
+                recChores.sort(new PercentageComparator().thenComparing(new TimeComparator()));
+        }
+
+        if (numChores != 0) {
+            if (numChores < recChores.size()) {
+                return recChores.subList(0, numChores);
+            }
+            else {
+                return recChores;
+            }
+        }
+        else {
+            return recChores;
         }
     }
 

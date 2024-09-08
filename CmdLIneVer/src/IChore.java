@@ -9,6 +9,11 @@ public interface IChore {
     Boolean hasDeepClean();
     String getName();
     void editName(String newName);
+
+    IRoom getRoom();
+
+    void editRoom(IRoom newRoom);
+
     int getEffort();
     void editEffort(int newEffort);
     Duration getTime();
